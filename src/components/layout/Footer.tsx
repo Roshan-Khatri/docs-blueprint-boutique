@@ -35,7 +35,7 @@ const Footer = () => {
               <div className="flex items-center space-x-2 mb-4">
                 <Phone className="h-8 w-8 text-primary" />
                 <span className="font-poppins font-bold text-xl text-foreground">
-                  TeleConnect
+                  FoneRoute
                 </span>
               </div>
               <p className="text-muted-foreground mb-6 max-w-md leading-relaxed">
@@ -50,7 +50,7 @@ const Footer = () => {
                 </div>
                 <div className="flex items-center space-x-3 text-muted-foreground">
                   <Mail size={16} />
-                  <span>info@teleconnect.com</span>
+                  <span>info@foneroute.com</span>
                 </div>
                 <div className="flex items-center space-x-3 text-muted-foreground">
                   <MapPin size={16} />
@@ -122,7 +122,7 @@ const Footer = () => {
         <div className="py-6 border-t border-border">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-muted-foreground text-sm">
-              © {currentYear} TeleConnect. All rights reserved.
+              © {currentYear} FoneRoute. All rights reserved.
             </div>
             <div className="flex space-x-6 text-sm">
               <Link to="/privacy" className="text-muted-foreground hover:text-primary transition-colors">

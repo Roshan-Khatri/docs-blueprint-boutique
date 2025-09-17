@@ -72,7 +72,7 @@ const Contact = () => {
     {
       icon: Mail,
       title: 'Email',
-      details: 'info@teleconnect.com',
+      details: 'info@foneroute.com',
       description: 'General inquiries'
     },
     {

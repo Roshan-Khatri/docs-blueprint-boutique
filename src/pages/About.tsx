@@ -98,7 +98,7 @@ const About = () => {
   return (
     <div>
       <PageHeader
-        title="About TeleConnect"
+        title="About FoneRoute"
         subtitle="Empowering businesses worldwide with innovative telecommunications solutions that drive growth, enhance productivity, and transform customer experiences."
         breadcrumb="Home / About"
       />
@@ -130,7 +130,7 @@ const About = () => {
                 Our Mission
               </h2>
               <p className="text-lg text-muted-foreground leading-relaxed mb-6">
-                At TeleConnect, we're passionate about breaking down communication barriers 
+                At FoneRoute, we're passionate about breaking down communication barriers 
                 that hold businesses back. Our mission is to provide enterprise-grade 
                 telecommunications solutions that are accessible, reliable, and powerful 
                 enough to scale with your ambitions.
@@ -260,7 +260,7 @@ const About = () => {
               Leadership Team
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Meet the experienced professionals driving innovation at TeleConnect
+              Meet the experienced professionals driving innovation at FoneRoute
             </p>
           </div>
 
@@ -294,7 +294,7 @@ const About = () => {
             Ready to Join Our Success Story?
           </h2>
           <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-            Discover how TeleConnect can transform your business communications 
+            Discover how FoneRoute can transform your business communications 
             and help you achieve your growth objectives.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

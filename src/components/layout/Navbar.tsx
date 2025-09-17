@@ -40,7 +40,7 @@ const Navbar = () => {
           <Link to="/" className="flex items-center space-x-2">
             <Phone className="h-8 w-8 text-primary" />
             <span className="font-poppins font-bold text-xl text-foreground">
-              TeleConnect
+              FoneRoute
             </span>
           </Link>
 

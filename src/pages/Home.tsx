@@ -124,7 +124,7 @@ const Home = () => {
         <div className="container-custom">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-poppins font-bold text-foreground mb-4">
-              Why Choose TeleConnect?
+              Why Choose FoneRoute?
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Experience the power of modern telecommunications technology designed 
