@@ -1,7 +1,8 @@
-import { useState } from 'react';
+
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { Menu, X, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Menu, X, ChevronDown, Phone } from 'lucide-react';
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -9,11 +10,45 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from '@/components/ui/navigation-menu';
+import { useSiteSettings } from '@/hooks/useSanityContent';
+import { urlFor } from '@/sanity/image';
+
+
+const defaultNavItems = [
+  { title: 'Home', href: '/' },
+];
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { data: siteSettings } = useSiteSettings();
 
+  // Logo
+  const logoImg = siteSettings?.logoImage ? urlFor(siteSettings.logoImage).url() : null;
+  const siteName = siteSettings?.siteName || 'FoneRoute';
+
+  // Navigation links from CMS or fallback
+  let navigationItems = siteSettings?.navigationLinks?.length
+    ? [...defaultNavItems, ...siteSettings.navigationLinks.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))]
+    : [
+        ...defaultNavItems,
+        { title: 'Solutions', href: '/solutions' },
+        { title: 'Features', href: '/features' },
+        { title: 'Industries', href: '/industries' },
+        { title: 'Pricing', href: '/pricing' },
+        { title: 'About', href: '/about' },
+      ];
+
+  // Pricing link visibility
+  if (!siteSettings?.showPricingInNav) {
+    navigationItems = navigationItems.filter(item => item.title !== 'Pricing');
+  }
+
+  // CTA button
+  const ctaText = siteSettings?.ctaButtonText || 'Contact Sales';
+  const ctaLink = siteSettings?.ctaButtonLink || '/solutions/contact-center';
+
+  // Solutions/Features dropdowns remain dynamic
   const solutionsItems = [
     { title: 'Contact Center Solution', href: '/solutions/contact-center' },
     { title: 'Auto Dialer', href: '/solutions/auto-dialer' },
@@ -22,9 +57,8 @@ const Navbar = () => {
     { title: 'Cloud PBX', href: '/solutions/cloud-pbx' },
     { title: 'Unified Communications', href: '/solutions/unified-communications' },
   ];
-
   const featuresItems = [
-    { title: 'Contact Center Features', href: '/features/contact-center' },
+    { title: 'Contact Center Features', href: '/solutions/contact-center' },
     { title: 'Calling Features', href: '/features/calling' },
     { title: 'Call Management', href: '/features/call-management' },
     { title: 'Call Reporting', href: '/features/call-reporting' },
@@ -38,51 +72,35 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <Phone className="h-8 w-8 text-primary" />
+            {logoImg ? (
+              <img src={logoImg} alt={siteName} className="h-8 w-8 object-contain" />
+            ) : (
+              <Phone className="h-8 w-8 text-primary" />
+            )}
             <span className="font-poppins font-bold text-xl text-foreground">
-              FoneRoute
+              {siteName}
             </span>
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-8">
             <NavigationMenu>
-              <NavigationMenuList className="space-x-6">
-                <NavigationMenuItem>
-                  <Link 
-                    to="/" 
-                    className={`font-medium transition-colors ${
-                      isActiveRoute('/') 
-                        ? 'text-primary' 
-                        : 'text-foreground hover:text-primary'
-                    }`}
-                  >
-                    Home
-                  </Link>
-                </NavigationMenuItem>
+              <NavigationMenuList className="space-x-6 justify-start">
+                {navigationItems.map((item) => (
+                  <NavigationMenuItem key={item.href}>
+                    <Link
+                      to={item.href}
+                      className={`font-medium transition-colors ${
+                        isActiveRoute(item.href)
+                          ? 'text-primary'
+                          : 'text-foreground hover:text-primary'
+                      }`}
+                    >
+                      {item.title}
+                    </Link>
+                  </NavigationMenuItem>
+                ))}
 
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger className="font-medium">
-                    Solutions
-                  </NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <div className="grid w-[500px] gap-3 p-6">
-                      <div className="grid grid-cols-2 gap-3">
-                        {solutionsItems.map((item) => (
-                          <Link
-                            key={item.href}
-                            to={item.href}
-                            className="block p-3 rounded-md hover:bg-surface-hover transition-colors"
-                          >
-                            <h6 className="font-medium text-sm text-foreground">
-                              {item.title}
-                            </h6>
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
 
                 <NavigationMenuItem>
                   <NavigationMenuTrigger className="font-medium">
@@ -106,52 +124,13 @@ const Navbar = () => {
                     </div>
                   </NavigationMenuContent>
                 </NavigationMenuItem>
-
-                <NavigationMenuItem>
-                  <Link 
-                    to="/industries" 
-                    className={`font-medium transition-colors ${
-                      isActiveRoute('/industries') 
-                        ? 'text-primary' 
-                        : 'text-foreground hover:text-primary'
-                    }`}
-                  >
-                    Industries
-                  </Link>
-                </NavigationMenuItem>
-
-                <NavigationMenuItem>
-                  <Link 
-                    to="/pricing" 
-                    className={`font-medium transition-colors ${
-                      isActiveRoute('/pricing') 
-                        ? 'text-primary' 
-                        : 'text-foreground hover:text-primary'
-                    }`}
-                  >
-                    Pricing
-                  </Link>
-                </NavigationMenuItem>
-
-                <NavigationMenuItem>
-                  <Link 
-                    to="/about" 
-                    className={`font-medium transition-colors ${
-                      isActiveRoute('/about') 
-                        ? 'text-primary' 
-                        : 'text-foreground hover:text-primary'
-                    }`}
-                  >
-                    About
-                  </Link>
-                </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
 
             <div className="flex items-center space-x-4">
-              <Link to="/contact">
+              <Link to={ctaLink}>
                 <Button variant="outline" size="sm" className="btn-secondary">
-                  Contact Sales
+                  {ctaText}
                 </Button>
               </Link>
             </div>
@@ -170,56 +149,24 @@ const Navbar = () => {
         {isOpen && (
           <div className="lg:hidden py-4 border-t border-border">
             <div className="space-y-4">
+              {navigationItems.map((item) => (
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  className="block py-2 text-foreground hover:text-primary font-medium"
+                  onClick={() => setIsOpen(false)}
+                >
+                  {item.title}
+                </Link>
+              ))}
+
               <Link
-                to="/"
-                className="block py-2 text-foreground hover:text-primary font-medium"
-                onClick={() => setIsOpen(false)}
-              >
-                Home
-              </Link>
-              <div className="space-y-2">
-                <div className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                  Solutions
-                </div>
-                {solutionsItems.slice(0, 4).map((item) => (
-                  <Link
-                    key={item.href}
-                    to={item.href}
-                    className="block py-2 pl-4 text-foreground hover:text-primary"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {item.title}
-                  </Link>
-                ))}
-              </div>
-              <Link
-                to="/industries"
-                className="block py-2 text-foreground hover:text-primary font-medium"
-                onClick={() => setIsOpen(false)}
-              >
-                Industries
-              </Link>
-              <Link
-                to="/pricing"
-                className="block py-2 text-foreground hover:text-primary font-medium"
-                onClick={() => setIsOpen(false)}
-              >
-                Pricing
-              </Link>
-              <Link
-                to="/about"
-                className="block py-2 text-foreground hover:text-primary font-medium"
-                onClick={() => setIsOpen(false)}
-              >
-                About
-              </Link>
-              <Link
-                to="/contact"
+                to={ctaLink}
                 className="block py-2"
                 onClick={() => setIsOpen(false)}
               >
                 <Button className="w-full btn-hero">
-                  Contact Sales
+                  {ctaText}
                 </Button>
               </Link>
             </div>

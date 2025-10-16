@@ -1,108 +1,160 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import PageHeader from '@/components/layout/PageHeader';
-import { useToast } from '@/hooks/use-toast';
-import { 
-  Phone, 
-  Mail, 
-  MapPin, 
-  Clock,
+import {
+  Phone,
+  Mail,
+  MapPin,
   MessageSquare,
-  Users,
   Building,
-  Send
 } from 'lucide-react';
+import { useSiteSettings } from '@/hooks/useSanityContent';
+import { ContactForm } from '@/components/ContactForm';
+import { ContactInfo } from '@/components/ContactInfo';
 
 const Contact = () => {
-  const { toast } = useToast();
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    company: '',
-    jobTitle: '',
-    solution: '',
-    message: ''
-  });
+  const { data: siteSettings, isLoading: settingsLoading, isError: settingsError } = useSiteSettings();
+  if (settingsError) {
+    console.warn('Failed to load site settings from CMS', settingsError);
+  }
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
+  // Build offices from CMS or fallback
+  let offices = [];
+  if (siteSettings?.officeLocations?.length) {
+    // Sort by primary or primaryOfficeIndex
+    const sorted = [...siteSettings.officeLocations];
+    if (typeof siteSettings.primaryOfficeIndex === 'number') {
+      sorted.sort((a, b) => {
+        if (a.primary) return -1;
+        if (b.primary) return 1;
+        return 0;
+      });
+      // Move primary office to front if index is set
+      if (siteSettings.primaryOfficeIndex >= 0 && siteSettings.primaryOfficeIndex < sorted.length) {
+        const [primary] = sorted.splice(siteSettings.primaryOfficeIndex, 1);
+        sorted.unshift(primary);
+      }
+    } else {
+      sorted.sort((a, b) => (b.primary ? 1 : -1));
+    }
+    offices = sorted.map((office) => ({
+      city: office.city || '',
+      address: office.address || '',
+      phone: office.phone || '',
+      hours: office.hours || '',
+    }));
+  } else {
+    offices = [
+      {
+        city: 'New York',
+        address: '123 Business Ave, Suite 100',
+        phone: '+1 (555) 123-4567',
+        hours: 'Mon-Fri: 9:00 AM - 6:00 PM EST'
+      },
+      {
+        city: 'San Francisco',
+        address: '456 Tech Street, Floor 15',
+        phone: '+1 (555) 987-6543',
+        hours: 'Mon-Fri: 9:00 AM - 6:00 PM PST'
+      },
+      {
+        city: 'London',
+        address: '789 Communication Blvd',
+        phone: '+44 20 1234 5678',
+        hours: 'Mon-Fri: 9:00 AM - 5:00 PM GMT'
+      }
+    ];
+  }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Form submission logic would go here
-    toast({
-      title: "Message Sent!",
-      description: "Thank you for contacting us. We'll get back to you within 24 hours.",
-    });
-    
-    // Reset form
-    setFormData({
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      company: '',
-      jobTitle: '',
-      solution: '',
-      message: ''
-    });
-  };
+  // Primary office for address
+  const primaryOffice = offices[0];
 
   const contactInfo = [
     {
+      icon: Mail,
+      title: 'General Inquiries',
+      details: siteSettings?.primaryEmail || 'info@foneroute.com',
+      description: 'For all general questions and information.',
+    },
+    {
       icon: Phone,
-      title: 'Sales',
-      details: '+1 (555) 123-4567',
-      description: 'Speak with our sales team'
+      title: 'Sales Inquiries',
+      details: siteSettings?.primaryPhone || primaryOffice?.phone || '+1 (555) 123-4567',
+      description: 'Speak with our sales team about our solutions.',
     },
     {
       icon: MessageSquare,
       title: 'Support',
-      details: '+1 (555) 123-4568',
-      description: '24/7 technical support'
-    },
-    {
-      icon: Mail,
-      title: 'Email',
-      details: 'info@foneroute.com',
-      description: 'General inquiries'
+      details: siteSettings?.supportPhone
+        || siteSettings?.supportEmail
+        || '+1 (555) 123-4568',
+      description: 'Get help from our technical support team.',
     },
     {
       icon: MapPin,
       title: 'Address',
-      details: '123 Business Ave, Tech City, TC 12345',
-      description: 'Visit our headquarters'
-    }
+      details: primaryOffice?.address || '123 Business Ave, Tech City, TC 12345',
+      description: 'Visit our headquarters',
+    },
   ];
 
-  const offices = [
-    {
-      city: 'New York',
-      address: '123 Business Ave, Suite 100',
-      phone: '+1 (555) 123-4567',
-      hours: 'Mon-Fri: 9:00 AM - 6:00 PM EST'
-    },
-    {
-      city: 'San Francisco',
-      address: '456 Tech Street, Floor 15',
-      phone: '+1 (555) 987-6543',
-      hours: 'Mon-Fri: 9:00 AM - 6:00 PM PST'
-    },
-    {
-      city: 'London',
-      address: '789 Communication Blvd',
-      phone: '+44 20 1234 5678',
-      hours: 'Mon-Fri: 9:00 AM - 5:00 PM GMT'
-    }
+  // Format business hours from CMS
+
+  function formatTime(time: string) {
+    if (!time) return '';
+    const [h, m] = time.split(':');
+    let hour = parseInt(h, 10);
+    const min = m !== undefined ? m : '00';
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    hour = hour % 12 || 12;
+    return `${hour}:${min} ${ampm}`;
+  }
+
+  const dayOrder = [
+    'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'
   ];
+  const dayLabels = {
+    monday: 'Monday',
+    tuesday: 'Tuesday',
+    wednesday: 'Wednesday',
+    thursday: 'Thursday',
+    friday: 'Friday',
+    saturday: 'Saturday',
+    sunday: 'Sunday',
+  };
+
+  let businessHours = [];
+  if (siteSettings?.businessHours) {
+    businessHours = dayOrder
+      .filter(day => siteSettings.businessHours[day])
+      .map(day => {
+        const hours = siteSettings.businessHours[day];
+        if (typeof hours === 'object') {
+          if (hours.closed) {
+            return { day: dayLabels[day], hours: 'Closed' };
+          }
+          if (hours.open && hours.close) {
+            return { day: dayLabels[day], hours: `${formatTime(hours.open)} - ${formatTime(hours.close)}` };
+          }
+        }
+        if (typeof hours === 'string') {
+          const [start, end] = hours.split('-');
+          if (start && end) {
+            return { day: dayLabels[day], hours: `${formatTime(start)} - ${formatTime(end)}` };
+          }
+        }
+        return { day: dayLabels[day], hours: 'Closed' };
+      });
+  } else {
+    businessHours = [
+      { day: 'Monday - Friday', hours: '9:00 AM - 6:00 PM' },
+      { day: 'Saturday', hours: '10:00 AM - 4:00 PM' },
+      { day: 'Sunday', hours: 'Closed' },
+    ];
+  }
+
+  // Support hours
+  let supportHours = siteSettings?.supportHours || '24/7 Available';
+  let holidayMessage = siteSettings?.holidayMessage || '';
 
   return (
     <div>
@@ -116,187 +168,15 @@ const Contact = () => {
       <section className="section-padding bg-background">
         <div className="container-custom">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-            {/* Contact Form */}
             <div>
-              <Card className="card-professional">
-                <CardHeader>
-                  <CardTitle className="text-2xl font-poppins font-bold text-foreground">
-                    Get Started Today
-                  </CardTitle>
-                  <p className="text-muted-foreground">
-                    Fill out the form below and our team will contact you within 24 hours to discuss your needs.
-                  </p>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Name Fields */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="firstName">First Name *</Label>
-                        <Input
-                          id="firstName"
-                          type="text"
-                          value={formData.firstName}
-                          onChange={(e) => handleInputChange('firstName', e.target.value)}
-                          required
-                          className="bg-surface border-input-border"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="lastName">Last Name *</Label>
-                        <Input
-                          id="lastName"
-                          type="text"
-                          value={formData.lastName}
-                          onChange={(e) => handleInputChange('lastName', e.target.value)}
-                          required
-                          className="bg-surface border-input-border"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Contact Info */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="email">Email Address *</Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          value={formData.email}
-                          onChange={(e) => handleInputChange('email', e.target.value)}
-                          required
-                          className="bg-surface border-input-border"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="phone">Phone Number</Label>
-                        <Input
-                          id="phone"
-                          type="tel"
-                          value={formData.phone}
-                          onChange={(e) => handleInputChange('phone', e.target.value)}
-                          className="bg-surface border-input-border"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Company Info */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="company">Company Name</Label>
-                        <Input
-                          id="company"
-                          type="text"
-                          value={formData.company}
-                          onChange={(e) => handleInputChange('company', e.target.value)}
-                          className="bg-surface border-input-border"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="jobTitle">Job Title</Label>
-                        <Input
-                          id="jobTitle"
-                          type="text"
-                          value={formData.jobTitle}
-                          onChange={(e) => handleInputChange('jobTitle', e.target.value)}
-                          className="bg-surface border-input-border"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Solution Interest */}
-                    <div className="space-y-2">
-                      <Label htmlFor="solution">Solution of Interest</Label>
-                      <Select value={formData.solution} onValueChange={(value) => handleInputChange('solution', value)}>
-                        <SelectTrigger className="bg-surface border-input-border">
-                          <SelectValue placeholder="Select a solution" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="contact-center">Contact Center Solution</SelectItem>
-                          <SelectItem value="auto-dialer">Auto Dialer</SelectItem>
-                          <SelectItem value="cloud-pbx">Cloud PBX</SelectItem>
-                          <SelectItem value="unified-communications">Unified Communications</SelectItem>
-                          <SelectItem value="multiple">Multiple Solutions</SelectItem>
-                          <SelectItem value="not-sure">Not Sure / Need Consultation</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Message */}
-                    <div className="space-y-2">
-                      <Label htmlFor="message">Message</Label>
-                      <Textarea
-                        id="message"
-                        rows={4}
-                        value={formData.message}
-                        onChange={(e) => handleInputChange('message', e.target.value)}
-                        placeholder="Tell us about your business needs and requirements..."
-                        className="bg-surface border-input-border resize-none"
-                      />
-                    </div>
-
-                    <Button type="submit" size="lg" className="w-full btn-hero">
-                      Send Message
-                      <Send className="ml-2 h-4 w-4" />
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
+              <ContactForm />
             </div>
-
-            {/* Contact Information */}
-            <div className="space-y-8">
-              <div>
-                <h2 className="text-2xl font-poppins font-bold text-foreground mb-6">
-                  Get In Touch
-                </h2>
-                <div className="space-y-6">
-                  {contactInfo.map((info, index) => (
-                    <div key={index} className="flex items-start space-x-4">
-                      <div className="p-3 bg-primary-light rounded-lg">
-                        <info.icon className="h-6 w-6 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-foreground mb-1">{info.title}</h3>
-                        <p className="text-foreground font-medium mb-1">{info.details}</p>
-                        <p className="text-muted-foreground text-sm">{info.description}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <Card className="card-professional">
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Clock className="h-5 w-5 text-primary" />
-                    <span>Business Hours</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Monday - Friday:</span>
-                      <span className="text-foreground font-medium">9:00 AM - 6:00 PM</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Saturday:</span>
-                      <span className="text-foreground font-medium">10:00 AM - 4:00 PM</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Sunday:</span>
-                      <span className="text-foreground font-medium">Closed</span>
-                    </div>
-                    <div className="pt-3 border-t border-border">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Support:</span>
-                        <span className="text-accent font-medium">24/7 Available</span>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            <ContactInfo 
+              contactInfo={contactInfo} 
+              businessHours={businessHours} 
+              supportHours={supportHours} 
+              holidayMessage={holidayMessage} 
+            />
           </div>
         </div>
       </section>

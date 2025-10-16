@@ -1,0 +1,41 @@
+import {defineField, defineType} from 'sanity'
+
+export default defineType({
+  name: 'solution',
+  title: 'Solution',
+  type: 'document',
+  fields: [
+    defineField({ name: 'title', title: 'Title', type: 'string', validation: Rule => Rule.required() }),
+    defineField({ name: 'slug', title: 'Slug', type: 'slug', options: { source: 'title', maxLength: 96 }, validation: Rule => Rule.required() }),
+    defineField({ name: 'description', title: 'Description', type: 'text', validation: Rule => Rule.required() }),
+    defineField({ name: 'longDescription', title: 'Long Description', type: 'array', of: [{type: 'block'}] }),
+    defineField({ name: 'category', title: 'Category', type: 'reference', to: [{type: 'solutionCategory'}], validation: Rule => Rule.required() }),
+    defineField({ name: 'heroImage', title: 'Hero Image', type: 'image' }),
+    defineField({ name: 'features', title: 'Features', type: 'array', of: [{type: 'string'}] }),
+    defineField({ name: 'benefits', title: 'Benefits', type: 'array', of: [{type: 'string'}] }),
+    defineField({ name: 'specifications', title: 'Specifications', type: 'array', of: [{type: 'block'}] }),
+    defineField({ name: 'pricing', title: 'Pricing', type: 'string' }),
+    defineField({ name: 'pricingModel', title: 'Pricing Model', type: 'string', options: { list: ['per-user', 'flat-rate', 'custom'] } }),
+    defineField({ name: 'metaTitle', title: 'Meta Title', type: 'string' }),
+    defineField({ name: 'metaDescription', title: 'Meta Description', type: 'text' }),
+    defineField({ name: 'ogImage', title: 'OG Image', type: 'image' }),
+    defineField({ name: 'parentSolution', title: 'Parent Solution', type: 'reference', to: [{type: 'solution'}] }),
+    defineField({ name: 'relatedSolutions', title: 'Related Solutions', type: 'array', of: [{type: 'reference', to: [{type: 'solution'}]}] }),
+    defineField({ name: 'published', title: 'Published', type: 'boolean', initialValue: true }),
+    defineField({ name: 'featured', title: 'Featured', type: 'boolean' }),
+    defineField({ name: 'order', title: 'Order', type: 'number' }),
+    defineField({ name: 'integrations', title: 'Integrations', type: 'array', of: [{type: 'reference', to: [{type: 'integration'}]}] }),
+    defineField({ name: 'systemRequirements', title: 'System Requirements', type: 'array', of: [{type: 'block'}] }),
+    defineField({ name: 'apiDocumentation', title: 'API Documentation', type: 'string' }),
+    defineField({ name: 'testimonials', title: 'Testimonials', type: 'array', of: [{type: 'string'}] }),
+    defineField({ name: 'caseStudies', title: 'Case Studies', type: 'array', of: [{type: 'string'}] }),
+    defineField({ name: 'demoUrl', title: 'Demo URL', type: 'url' }),
+  ],
+  preview: {
+    select: {
+      title: 'title',
+      category: 'category.title',
+      media: 'heroImage',
+    },
+  },
+})

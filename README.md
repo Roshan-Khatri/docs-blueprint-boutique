@@ -1,73 +1,74 @@
-# Welcome to your Lovable project
+# FoneRoute - Telecommunications Solutions Website
 
-## Project info
+This repository contains the source code for the FoneRoute website, a professional telecommunications solutions provider. The frontend is built with React, Vite, and Tailwind CSS, and it is integrated with Sanity CMS for content management.
 
-**URL**: https://lovable.dev/projects/11fff5f8-3a7e-4a70-b7e7-e357d7b77de4
+## Technology Stack
 
-## How can I edit this code?
+- **Framework**: [React](https://reactjs.org/)
+- **Build Tool**: [Vite](https://vitejs.dev/)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **UI Components**: [shadcn-ui](https://shadcn.com/ui)
+- **Content Management**: [Sanity](https://www.sanity.io/)
 
-There are several ways of editing your application.
+## Local Development
 
-**Use Lovable**
+To run this project locally, follow these steps:
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/11fff5f8-3a7e-4a70-b7e7-e357d7b77de4) and start prompting.
+1.  **Clone the repository:**
+    ```sh
+    git clone <YOUR_GIT_URL>
+    cd <YOUR_PROJECT_NAME>
+    ```
 
-Changes made via Lovable will be committed automatically to this repo.
+2.  **Install dependencies:**
+    This project uses `bun` as the package manager.
+    ```sh
+    bun install
+    ```
 
-**Use your preferred IDE**
+3.  **Set up environment variables:**
+    Create a `.env` file in the root directory and add the necessary Sanity environment variables. See `.env.example` for the required variables.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+4.  **Run the development server:**
+    ```sh
+    bun run dev
+    ```
+    The application will be available at `http://localhost:5173`.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## Sanity Studio
 
-Follow these steps:
+The Sanity Studio for this project is located in the `/studio` directory.
+
+1.  **Navigate to the studio directory:**
+    ```sh
+    cd studio
+    ```
+
+2.  **Install studio dependencies:**
+    ```sh
+    bun install
+    ```
+
+3.  **Set up environment variables:**
+    Create a `.env.local` file in the `studio` directory and add your Sanity project ID and dataset. See `studio/.env.example` for details.
+
+4.  **Run the studio:**
+    ```sh
+    bun run dev
+    ```
+    The Sanity Studio will be available at `http://localhost:3333`.
+
+## Deployment
+
+This application can be deployed to any modern hosting provider that supports Node.js environments, such as Vercel, Netlify, or AWS Amplify.
+
+### Build Command
+
+To create a production build, run the following command:
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+bun run build
 ```
 
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/11fff5f8-3a7e-4a70-b7e7-e357d7b77de4) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+This will generate a `dist` directory with the optimized static assets for deployment.

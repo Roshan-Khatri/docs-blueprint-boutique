@@ -1,0 +1,40 @@
+import {defineField, defineType} from 'sanity'
+
+export default defineType({
+  name: 'pricingPlan',
+  title: 'Pricing Plan',
+  type: 'document',
+  fields: [
+    defineField({ name: 'title', title: 'Title', type: 'string', validation: Rule => Rule.required() }),
+    defineField({ name: 'slug', title: 'Slug', type: 'slug', options: { source: 'title', maxLength: 96 }, validation: Rule => Rule.required() }),
+    defineField({ name: 'description', title: 'Description', type: 'text', validation: Rule => Rule.required() }),
+    defineField({ name: 'planType', title: 'Plan Type', type: 'string', options: { list: ['toll-free', 'local', 'hosted-dialer', 'call-tracking'] }, validation: Rule => Rule.required() }),
+    defineField({ name: 'price', title: 'Price', type: 'number', validation: Rule => Rule.required() }),
+    defineField({ name: 'currency', title: 'Currency', type: 'string', initialValue: 'USD' }),
+    defineField({ name: 'billingPeriod', title: 'Billing Period', type: 'string', options: { list: ['monthly', 'annual'] } }),
+    defineField({ name: 'setupFee', title: 'Setup Fee', type: 'number' }),
+    defineField({ name: 'includedFeatures', title: 'Included Features', type: 'array', of: [{type: 'string'}] }),
+    defineField({ name: 'featureList', title: 'Feature List', type: 'array', of: [{type: 'block'}] }),
+    defineField({ name: 'limitations', title: 'Limitations', type: 'array', of: [{type: 'string'}] }),
+    defineField({ name: 'featured', title: 'Featured', type: 'boolean' }),
+    defineField({ name: 'popular', title: 'Popular', type: 'boolean' }),
+    defineField({ name: 'order', title: 'Order', type: 'number' }),
+    defineField({ name: 'heroImage', title: 'Hero Image', type: 'image' }),
+    defineField({ name: 'longDescription', title: 'Long Description', type: 'array', of: [{type: 'block'}] }),
+    defineField({ name: 'benefits', title: 'Benefits', type: 'array', of: [{type: 'string'}] }),
+    defineField({ name: 'ctaText', title: 'CTA Text', type: 'string' }),
+    defineField({ name: 'ctaUrl', title: 'CTA URL', type: 'url' }),
+    defineField({ name: 'trialAvailable', title: 'Trial Available', type: 'boolean' }),
+    defineField({ name: 'trialDuration', title: 'Trial Duration (days)', type: 'number' }),
+    defineField({ name: 'metaTitle', title: 'Meta Title', type: 'string' }),
+    defineField({ name: 'metaDescription', title: 'Meta Description', type: 'text' }),
+  ],
+  preview: {
+    select: {
+      title: 'title',
+      price: 'price',
+      planType: 'planType',
+      media: 'heroImage',
+    },
+  },
+})

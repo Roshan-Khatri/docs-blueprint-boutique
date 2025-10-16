@@ -12,8 +12,41 @@ import {
   CheckCircle,
   ArrowRight
 } from 'lucide-react';
+import { usePageBySlug, useSanityStatus } from '../hooks/useSanityContent';
 
 const About = () => {
+  // Demonstrate Sanity content loading by slug
+  const { data: page, error, isLoading } = usePageBySlug('about');
+  const sanityStatus = useSanityStatus();
+
+  // Dev-only banner for missing Sanity config
+  const showDevBanner = import.meta.env.DEV && !sanityStatus.isConfigured;
+
+  if (isLoading) return <div>Loading page content...</div>;
+  if (error) return <div>Error loading page: {error.message}</div>;
+  if (page) {
+    return (
+      <div>
+        {showDevBanner && (
+          <div style={{ background: '#fffbe6', color: '#ad8a00', padding: '1rem', marginBottom: '1rem', borderRadius: '6px', border: '1px solid #ffe58f' }}>
+            <strong>Sanity CMS is not fully configured.</strong><br />
+            Missing: {sanityStatus.missing.join(', ') || 'unknown'}<br />
+            To enable live editing, set up your environment variables as described in <code>.env.example</code> and <code>src/sanity/env.ts</code>.
+          </div>
+        )}
+        <PageHeader title={page.title} />
+        <Card>
+          <CardContent>
+            <div>{page.excerpt}</div>
+            {/* Render more Sanity content as needed */}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+  // If no Sanity page, fallback to static content below
+
+  // Static fallback content
   const stats = [
     { number: '10+', label: 'Years Experience' },
     { number: '5000+', label: 'Happy Customers' },

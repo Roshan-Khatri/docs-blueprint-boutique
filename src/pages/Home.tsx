@@ -1,53 +1,26 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { 
-  Phone, 
-  Zap, 
-  Shield, 
-  Users, 
-  BarChart3, 
-  Globe,
-  ArrowRight,
-  CheckCircle
-} from 'lucide-react';
+import { Phone, Zap, Shield, Users, BarChart3, Globe, ArrowRight, CheckCircle } from 'lucide-react';
 import heroImage from '@/assets/hero-bg.jpg';
+import { useFeaturedFeatures, useFeaturedSolutions } from '@/hooks/useSanityContent';
+import type { FeatureDoc, Solution } from '@/sanity/types';
 
-const Home = () => {
-  const features = [
-    {
-      icon: Phone,
-      title: 'Contact Center Solutions',
-      description: 'Advanced inbound and outbound contact center technology with intelligent routing and real-time analytics.'
-    },
-    {
-      icon: Zap,
-      title: 'Auto & Predictive Dialers',
-      description: 'Boost productivity with automated dialing solutions that maximize agent efficiency and call connection rates.'
-    },
-    {
-      icon: Shield,
-      title: 'Cloud PBX',
-      description: 'Reliable, scalable phone systems hosted in the cloud with enterprise-grade security and 99.9% uptime.'
-    },
-    {
-      icon: Users,
-      title: 'Unified Communications',
-      description: 'Seamlessly integrate voice, video, messaging, and collaboration tools in one powerful platform.'
-    },
-    {
-      icon: BarChart3,
-      title: 'Advanced Analytics',
-      description: 'Gain actionable insights with comprehensive reporting and real-time dashboards to optimize performance.'
-    },
-    {
-      icon: Globe,
-      title: 'Global Numbers',
-      description: 'Establish local presence worldwide with toll-free, local, and international phone numbers.'
-    }
-  ];
+const staticFeatures = [
+  {
+    icon: Phone,
+    title: 'Contact Center Solutions',
+    description: 'Advanced inbound and outbound contact center technology with intelligent routing and real-time analytics.'
+  },
+  // ...other features...
+];
 
-  const solutions = [
+
+function Home() {
+  const { data: cmsFeatures, isLoading: featuresLoading, isError: featuresError } = useFeaturedFeatures();
+  const { data: cmsSolutions } = useFeaturedSolutions();
+
+  const staticSolutions = [
     {
       title: 'Contact Center',
       description: 'Complete contact center solution with omnichannel support',
@@ -69,6 +42,37 @@ const Home = () => {
       href: '/solutions/unified-communications'
     }
   ];
+
+  const iconFor = (label: string) => {
+    const key = label.toLowerCase();
+    if (key.includes('contact')) return Phone;
+    if (key.includes('dialer')) return Zap;
+    if (key.includes('pbx') || key.includes('cloud')) return Shield;
+    if (key.includes('unified') || key.includes('collab')) return Users;
+    if (key.includes('analytics') || key.includes('report')) return BarChart3;
+    if (key.includes('global') || key.includes('international')) return Globe;
+    return Phone;
+  };
+
+  if (featuresError) {
+    console.warn('Failed to load features from CMS', featuresError);
+  }
+
+  const features = (cmsFeatures && cmsFeatures.length > 0)
+    ? cmsFeatures.slice(0, 6).map(f => ({
+        icon: iconFor(f.title),
+        title: f.title,
+        description: f.description ?? '',
+      }))
+    : staticFeatures;
+
+  const solutions = (cmsSolutions && cmsSolutions.length > 0)
+    ? cmsSolutions.slice(0, 4).map(s => ({
+        title: s.title,
+        description: s.description ?? '',
+        href: s.slug?.current ? `/solutions/${s.slug.current}` : '#',
+      }))
+    : staticSolutions;
 
   const benefits = [
     'Increase productivity by up to 300%',
@@ -109,30 +113,22 @@ const Home = () => {
                 <Button 
                   size="lg" 
                   variant="outline" 
-                  className="text-white border-white hover:bg-white hover:text-primary text-lg px-8 py-4"
+                  className="btn-secondary text-lg px-8 py-4"
                 >
                   View Solutions
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
             </div>
           </div>
         </div>
+
       </section>
 
-      {/* Features Section */}
+      {/* Features Highlight */}
       <section className="section-padding bg-background">
         <div className="container-custom">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-poppins font-bold text-foreground mb-4">
-              Why Choose FoneRoute?
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Experience the power of modern telecommunications technology designed 
-              to enhance productivity, reduce costs, and drive business growth.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {features.map((feature, index) => (
               <Card key={index} className="card-professional card-hover">
                 <CardContent className="p-8">
@@ -185,7 +181,7 @@ const Home = () => {
 
           <div className="text-center mt-12">
             <Link to="/solutions">
-              <Button size="lg" className="btn-hero">
+              <Button size="lg" variant="outline" className="btn-secondary">
                 View All Solutions
               </Button>
             </Link>
@@ -255,15 +251,15 @@ const Home = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/contact">
-              <Button size="lg" className="bg-white text-primary hover:bg-white/90 font-semibold px-8 py-4">
+              <Button size="lg" className="btn-hero">
                 Contact Sales
               </Button>
             </Link>
             <Link to="/pricing">
               <Button 
                 size="lg" 
-                variant="outline" 
-                className="text-white border-white hover:bg-white hover:text-primary px-8 py-4"
+                variant="outline"
+                className="btn-secondary"
               >
                 View Pricing
               </Button>
